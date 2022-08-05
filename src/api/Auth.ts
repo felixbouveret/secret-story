@@ -2,16 +2,19 @@ import {
   createUserWithEmailAndPassword,
   getAuth,
   GoogleAuthProvider,
+  NextOrObserver,
+  onAuthStateChanged,
   signInWithEmailAndPassword,
   signInWithPopup,
-  signOut
+  signOut,
+  User
 } from 'firebase/auth';
 
 import firebase from './firebase';
 
 const auth = getAuth(firebase);
 
-export const register = async (email: string, password: string) => {
+const register = async (email: string, password: string) => {
   try {
     const { user } = await createUserWithEmailAndPassword(auth, email, password);
     return user;
@@ -21,7 +24,7 @@ export const register = async (email: string, password: string) => {
   }
 };
 
-export const login = async (email: string, password: string) => {
+const login = async (email: string, password: string) => {
   try {
     const { user } = await signInWithEmailAndPassword(auth, email, password);
     return user;
@@ -31,7 +34,7 @@ export const login = async (email: string, password: string) => {
   }
 };
 
-export const logout = async () => {
+const logout = async () => {
   try {
     await signOut(auth);
   } catch (error: any) {
@@ -40,7 +43,7 @@ export const logout = async () => {
   }
 };
 
-export const googleLogin = async () => {
+const googleLogin = async () => {
   const provider = new GoogleAuthProvider();
   try {
     const result = await signInWithPopup(auth, provider);
@@ -56,4 +59,14 @@ export const googleLogin = async () => {
     const credential = GoogleAuthProvider.credentialFromError(error);
     // ...
   }
+};
+
+const authState = (fcn: NextOrObserver<User>) => onAuthStateChanged(auth, fcn);
+
+export default {
+  register,
+  login,
+  logout,
+  googleLogin,
+  authState
 };

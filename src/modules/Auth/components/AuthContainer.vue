@@ -18,6 +18,7 @@ const props = defineProps({
 .authContainer {
   display: flex;
   flex-direction: column;
+  width: 100%;
   gap: 24px;
   padding: 20px;
   border-radius: 8px;
