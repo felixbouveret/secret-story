@@ -7,6 +7,7 @@ import router from '@/router';
 import AuthContainer from './AuthContainer.vue';
 
 const email = ref('');
+const username = ref('');
 const password = ref('');
 const confirmPassword = ref('');
 const isLoading = ref(false);
@@ -16,7 +17,7 @@ const { register } = useUser();
 const onSubmit = async () => {
   isLoading.value = true;
   try {
-    await register(email.value, password.value);
+    await register(email.value, password.value, username.value);
     router.push({ name: 'Home' });
   } catch (error) {
     console.error(error);
@@ -28,6 +29,7 @@ const onSubmit = async () => {
 
 <template>
   <AuthContainer title="Inscription" class="loginContainer">
+    <el-input id="firstname" v-model="username" placeholder="Nom de scène" type="firstname" />
     <el-input id="email" v-model="email" placeholder="Email" type="email" />
     <el-input
       id="password"

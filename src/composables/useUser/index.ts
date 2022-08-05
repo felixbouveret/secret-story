@@ -34,8 +34,8 @@ const logout = async () => {
   resetUserData();
 };
 
-const register = async (email: string, password: string) => {
-  const user = await AuthService.register(email, password);
+const register = async (email: string, password: string, displayName: string) => {
+  const user = await AuthService.register(email, password, displayName);
   if (user) {
     fillUserData(user);
     persistUserData();
