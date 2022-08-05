@@ -3,3 +3,8 @@ declare module '*.vue' {
   const component: DefineComponent;
   export default component;
 }
+
+declare module '*.svg' {
+  const content: unknown;
+  export default content;
+}
