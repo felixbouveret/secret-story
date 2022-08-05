@@ -2,7 +2,7 @@ import get from 'lodash-es/get';
 import set from 'lodash-es/set';
 import { computed, reactive, watch } from 'vue';
 
-import AuthService from '@/api/auth';
+import AuthService from '@/api/Auth';
 import { useStorage } from '@/composables/useStorage';
 
 const { getFromLocalStorage, setInLocalStorage, removeFromLocalStorage } = useStorage();
@@ -10,11 +10,13 @@ interface UserInterface {
   uid?: string;
   email?: string;
   displayName?: string;
+  photoUrl?: string;
 }
 const userData = reactive({
   uid: null,
   email: '',
-  displayName: ''
+  displayName: '',
+  photoUrl: ''
 });
 
 const setUserData = (key: string, data: any) => set(userData, key, data);
@@ -43,19 +45,21 @@ const register = async (email: string, password: string) => {
 
 const resetUserData = async () => {
   for (const key in userData) delete userData[key];
-  removeFromLocalStorage(['uid', 'email', 'displayName']);
+  removeFromLocalStorage(['uid', 'email', 'displayName', 'photoUrl']);
 };
 
 const persistUserData = () => {
   setInLocalStorage('uid', userData.uid);
   setInLocalStorage('email', userData.email);
   setInLocalStorage('displayName', userData.displayName);
+  setInLocalStorage('photoUrl', userData.photoUrl);
 };
 
 const fillUserData = (user) => {
   setUserData('uid', user.uid);
   setUserData('email', user.email);
   setUserData('displayName', user.displayName);
+  setUserData('photoUrl', user.photoURL);
 };
 
 const fillUserDataFromSession = () => {
@@ -63,6 +67,7 @@ const fillUserDataFromSession = () => {
   userLocal.uid = getFromLocalStorage('uid');
   userLocal.email = getFromLocalStorage('email');
   userLocal.displayName = getFromLocalStorage('displayName');
+  userLocal.photoUrl = getFromLocalStorage('photoUrl');
   Object.assign(userData, userLocal);
 };
 
