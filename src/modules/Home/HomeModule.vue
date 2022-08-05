@@ -1,19 +1,37 @@
-<script lang="ts" setup>
-import { useUser } from '@/composables/useUser/index.js';
-import router from '@/router';
-
-const { logout } = useUser();
-const onLogout = async () => {
-  await logout();
-  router.push({ name: 'Auth' });
-};
-</script>
+<script lang="ts" setup></script>
 
 <template>
-  <div>
+  <div class="homeRoot">
     <h1>Home</h1>
-    <el-button type="danger" @click="onLogout"> Deconnexion </el-button>
+    <div class="buttonsContainer">
+      <button class="button">Créer une Secret Story</button>
+      <button class="button">Rejoindre une Secret Story</button>
+    </div>
   </div>
 </template>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.homeRoot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  padding: 80px 20px;
+}
+.buttonsContainer {
+  max-width: 400px;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 24px;
+}
+.button {
+  cursor: pointer;
+  width: 100%;
+  text-align: center;
+  padding: 20px;
+  border: solid 1px #e6e6e6;
+  border-radius: 8px;
+}
+</style>
