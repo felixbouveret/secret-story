@@ -3,6 +3,7 @@
 <template>
   <div class="homeRoot">
     <h1>Home</h1>
+
     <div class="buttonsContainer">
       <button class="button">Créer une Secret Story</button>
       <button class="button">Rejoindre une Secret Story</button>

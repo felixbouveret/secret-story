@@ -13,7 +13,7 @@ interface UserInterface {
   photoUrl?: string;
 }
 const userData = reactive({
-  uid: null,
+  uid: '',
   email: '',
   displayName: '',
   photoUrl: ''
