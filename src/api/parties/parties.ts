@@ -1,5 +1,4 @@
 import {
-  addDoc,
   arrayRemove,
   arrayUnion,
   collection,
@@ -12,6 +11,9 @@ import {
   updateDoc,
   where
 } from 'firebase/firestore';
+import { customAlphabet } from 'nanoid';
+const alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+const nanoid = customAlphabet(alphabet, 8);
 
 import db from '@/api/firestore';
 
@@ -19,7 +21,7 @@ import { PartyInterface } from './types';
 
 export const createParty = async (party: PartyInterface) => {
   try {
-    const { id } = await addDoc(collection(db, 'parties'), party);
+    const id = nanoid();
     await setDoc(doc(db, 'parties', id), { ...party, id });
   } catch (e) {
     console.error('Error adding document: ', e);
@@ -40,7 +42,11 @@ export const getParty = async (uid: string) => {
 };
 
 export const getParties = async (uid: string) => {
-  const q = query(collection(db, 'parties'), where('ownerUid', '==', uid));
+  const q = query(
+    collection(db, 'parties'),
+    where('ownerUid', '==', uid),
+    where('membersUid', 'array-contains', uid)
+  );
 
   const querySnapshot = await getDocs(q);
   querySnapshot.forEach((doc) => {
@@ -49,11 +55,8 @@ export const getParties = async (uid: string) => {
   });
 };
 
-export const listenParties = (
-  uid: string,
-  callback: (parties: PartyInterface[]) => PartyInterface[]
-) => {
-  const q = query(collection(db, 'parties'), where('ownerUid', '==', uid));
+export const listenParties = (uid: string, callback: (parties: PartyInterface[]) => void) => {
+  const q = query(collection(db, 'parties'), where('membersUid', 'array-contains', uid));
 
   return onSnapshot(q, (querySnapshot) => {
     const parties: PartyInterface[] = [];

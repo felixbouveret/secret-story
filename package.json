@@ -10,8 +10,11 @@
   "dependencies": {
     "@element-plus/icons-vue": "^2.0.6",
     "@types/node": "^17.0.23",
+    "@vueuse/core": "^9.1.0",
+    "date-fns": "^2.29.1",
     "element-plus": "^2.2.12",
     "firebase": "9.9.1",
+    "nanoid": "^4.0.0",
     "vite-svg-loader": "^3.4.0",
     "vue": "^3.2.37",
     "vue-router": "4"
