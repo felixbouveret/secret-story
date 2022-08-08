@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { ArrowRight, CircleClose, CopyDocument } from '@element-plus/icons-vue';
 
+import { deleteParty, leaveParty } from '@/api/parties';
 import MembersList from '@/components/MembersList';
 import { useDate } from '@/composables/useDate.js';
 import { useUser } from '@/composables/useUser/index.js';
@@ -21,6 +22,11 @@ const formatDate = (_: unknown, __: unknown, cellValue: any) =>
 
 const copyId = (id: string) => {
   navigator.clipboard.writeText(id);
+};
+
+const onCross = (row) => {
+  if (row.ownerUid === userData.uid) deleteParty(row.id);
+  else leaveParty(row.id, userData.uid);
 };
 </script>
 
@@ -59,7 +65,7 @@ const copyId = (id: string) => {
             :plain="false"
             type="danger"
             size="small"
-            @click="copyId(scope.row.id)"
+            @click="onCross(scope.row)"
           />
         </el-tooltip>
         <el-button

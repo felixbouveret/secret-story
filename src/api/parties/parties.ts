@@ -2,6 +2,7 @@ import {
   arrayRemove,
   arrayUnion,
   collection,
+  deleteDoc,
   doc,
   getDoc,
   getDocs,
@@ -84,11 +85,20 @@ export const joinParty = async (userId: string, partyId: string) => {
   }
 };
 
-export const leaveParty = async (userId: string, partyId: string) => {
+export const leaveParty = async (partyId: string, userId: string) => {
   try {
     await updateDoc(doc(db, 'parties', partyId), {
       membersUid: arrayRemove(userId)
     });
+  } catch (e) {
+    console.error('Error updating document: ', e);
+  }
+};
+
+export const deleteParty = async (partyId: string) => {
+  try {
+    await deleteDoc(doc(db, 'parties', partyId));
+    await deleteDoc(doc(db, 'parties', partyId, 'membersUid'));
   } catch (e) {
     console.error('Error updating document: ', e);
   }
