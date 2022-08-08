@@ -18,13 +18,14 @@ const nanoid = customAlphabet(alphabet, 8);
 
 import db from '@/api/firestore';
 
-import { PartyInterface } from './types';
+import { getMultipleUsers, getUser } from '../users';
+import { PartyInterface, PartyMemberInterface } from './types';
 
-export const createParty = async (party: PartyInterface) => {
+export const createParty = async (party: PartyInterface, owner: PartyMemberInterface) => {
   try {
     const id = nanoid();
     await setDoc(doc(db, 'parties', id), { ...party, id });
-    return id;
+    await addPartyMember(id, owner);
   } catch (e) {
     console.error('Error adding document: ', e);
   }
@@ -72,11 +73,12 @@ export const updateParty = async (party: PartyInterface) => {
   }
 };
 
-export const joinParty = async (partyId: string, userId: string) => {
+export const joinParty = async (partyId: string, user: PartyMemberInterface) => {
   try {
     await updateDoc(doc(db, 'parties', partyId), {
-      membersUid: arrayUnion(userId)
+      membersUid: arrayUnion(user.uid)
     });
+    await addPartyMember(partyId, user);
   } catch (e) {
     console.error('Error updating document: ', e);
   }
@@ -98,5 +100,46 @@ export const deleteParty = async (partyId: string) => {
     await deleteDoc(doc(db, 'parties', partyId, 'membersUid'));
   } catch (e) {
     console.error('Error updating document: ', e);
+  }
+};
+
+const addPartyMember = async (partyId: string, member: PartyMemberInterface) => {
+  try {
+    await setDoc(doc(db, 'parties', partyId, 'members', member.uid), member);
+  } catch (e) {
+    console.error('Error adding document: ', e);
+  }
+};
+
+export const getPartyMember = async (partyId: string, memberUid: string) => {
+  try {
+    const memberPersonalInfos = await getUser(memberUid);
+    const memberStatus = await getDoc(doc(db, 'parties', partyId, 'members', memberUid));
+    if (memberStatus.exists() && memberPersonalInfos) {
+      return { ...memberStatus.data(), ...memberPersonalInfos };
+    } else {
+      // doc.data() will be undefined in this case
+      console.log('No such document!');
+    }
+  } catch (e) {
+    console.error('Error adding document: ', e);
+  }
+};
+
+export const getAllPartyMembers = async (partyId: string, membersUids: string[]) => {
+  try {
+    const membersPersonalInfos = await getMultipleUsers(membersUids);
+    const membersStatusSnapshot = await getDocs(collection(db, 'parties', partyId, 'members'));
+    const membersStatus: any[] = [];
+    membersStatusSnapshot.forEach((doc) => {
+      membersStatus.push(doc.data());
+    });
+    const result = membersPersonalInfos.map((personalInfos) => ({
+      ...personalInfos,
+      ...membersStatus.find((member) => member.uid === personalInfos.uid)
+    }));
+    return result;
+  } catch (e) {
+    console.error('Error adding document: ', e);
   }
 };

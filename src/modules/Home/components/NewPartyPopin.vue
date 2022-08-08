@@ -37,7 +37,12 @@ const onSubmit = async () => {
     membersUid: [userData.uid],
     startingDate: startingDate.value
   };
-  await createParty(party);
+  const owner = {
+    uid: userData.uid,
+    isReady: false,
+    isHost: true
+  };
+  await createParty(party, owner);
   isLoading.value = false;
   computedIsDisplayed.value = false;
 };

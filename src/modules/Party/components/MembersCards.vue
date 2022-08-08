@@ -2,7 +2,7 @@
 import { UserFilled } from '@element-plus/icons-vue';
 import { onMounted, PropType, ref, watch } from 'vue';
 
-import { getUser } from '@/api/users/users.js';
+import { getAllPartyMembers } from '@/api/parties';
 
 const props = defineProps({
   membersUid: {
@@ -10,6 +10,10 @@ const props = defineProps({
     default: () => []
   },
   ownerUid: {
+    type: String,
+    default: ''
+  },
+  partyId: {
     type: String,
     default: ''
   },
@@ -24,16 +28,15 @@ const props = defineProps({
 });
 const isLoading = ref(false);
 const members = ref();
-const isReady = ref(false);
 
 onMounted(async () => {
   isLoading.value = true;
-  members.value = await Promise.all(props.membersUid.map(getUser));
+  members.value = await getAllPartyMembers(props.partyId, props.membersUid);
   isLoading.value = false;
 });
 
 watch(props.membersUid, async (newList) => {
-  members.value = await Promise.all(newList.map(getUser));
+  members.value = await getAllPartyMembers(props.partyId, newList);
 });
 </script>
 
@@ -49,7 +52,7 @@ watch(props.membersUid, async (newList) => {
         <UserFilled :width="32" />
       </el-avatar>
       <p>{{ member.displayName }}</p>
-      <el-tag v-if="!isReady" type="warning">En attente de réponses</el-tag>
+      <el-tag v-if="!member.isReady" type="warning">En attente de réponses</el-tag>
       <el-tag v-else type="success">Prêt</el-tag>
     </li>
   </ul>

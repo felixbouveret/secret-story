@@ -30,7 +30,12 @@ const isLoading = ref(false);
 const onSubmit = async () => {
   isLoading.value = true;
 
-  await joinParty(userData.uid, partyId.value);
+  await joinParty(partyId.value, {
+    uid: userData.uid,
+    isReady: false,
+    isHost: false
+  });
+
   isLoading.value = false;
   computedIsDisplayed.value = false;
 };

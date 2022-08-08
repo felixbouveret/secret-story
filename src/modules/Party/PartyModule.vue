@@ -32,7 +32,11 @@ onBeforeMount(async () => {
           </p>
         </div>
         <div class="members">
-          <MembersCards :members-uid="partyData.membersUid" :owner-uid="partyData.ownerUid" />
+          <MembersCards
+            :members-uid="partyData.membersUid"
+            :owner-uid="partyData.ownerUid"
+            :party-id="route.params.id"
+          />
         </div>
       </div>
     </div>
