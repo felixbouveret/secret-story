@@ -24,7 +24,7 @@ const copyId = (id: string) => {
   navigator.clipboard.writeText(id);
 };
 
-const onCross = (row) => {
+const onCross = (row: any) => {
   if (row.ownerUid === userData.uid) deleteParty(row.id);
   else leaveParty(row.id, userData.uid);
 };
@@ -51,7 +51,6 @@ const onCross = (row) => {
     </el-table-column>
     <el-table-column prop="name" label="Nom" />
     <el-table-column label="Début" prop="startingDate" :formatter="formatDate" />
-    <el-table-column label="Fin" prop="endingDate" :formatter="formatDate" />
     <el-table-column label="Membres" width="150px" load>
       <template #default="scope">
         <MembersList :members-uid="scope.row.membersUid" :owner-uid="scope.row.ownerUid" is-small />

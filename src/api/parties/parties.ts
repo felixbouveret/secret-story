@@ -24,6 +24,7 @@ export const createParty = async (party: PartyInterface) => {
   try {
     const id = nanoid();
     await setDoc(doc(db, 'parties', id), { ...party, id });
+    return id;
   } catch (e) {
     console.error('Error adding document: ', e);
   }
@@ -42,11 +43,7 @@ export const getParty = async (uid: string) => {
 };
 
 export const getParties = async (uid: string) => {
-  const q = query(
-    collection(db, 'parties'),
-    where('ownerUid', '==', uid),
-    where('membersUid', 'array-contains', uid)
-  );
+  const q = query(collection(db, 'parties'), where('membersUid', 'array-contains', uid));
 
   const querySnapshot = await getDocs(q);
   querySnapshot.forEach((doc) => {
@@ -61,7 +58,7 @@ export const listenParties = (uid: string, callback: (parties: PartyInterface[])
   return onSnapshot(q, (querySnapshot) => {
     const parties: PartyInterface[] = [];
     querySnapshot.forEach((doc) => {
-      parties.push(doc.data());
+      parties.push(doc.data() as PartyInterface);
     });
     callback(parties);
   });
@@ -75,7 +72,7 @@ export const updateParty = async (party: PartyInterface) => {
   }
 };
 
-export const joinParty = async (userId: string, partyId: string) => {
+export const joinParty = async (partyId: string, userId: string) => {
   try {
     await updateDoc(doc(db, 'parties', partyId), {
       membersUid: arrayUnion(userId)

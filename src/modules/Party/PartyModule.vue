@@ -4,8 +4,9 @@ import { useRoute } from 'vue-router';
 
 import { getParty } from '@/api/parties/parties.js';
 import { getUser } from '@/api/users/users.js';
-import MembersList from '@/components/MembersList';
 import { useDate } from '@/composables/useDate';
+
+import MembersCards from './components/MembersCards.vue';
 
 const route = useRoute();
 const { formatDateSeconds } = useDate();
@@ -29,13 +30,9 @@ onBeforeMount(async () => {
             <span>Début :</span>
             <span>{{ formatDateSeconds(partyData.startingDate.seconds) }}</span>
           </p>
-          <p>
-            <span>Fin :</span>
-            <span>{{ formatDateSeconds(partyData.endingDate.seconds) }}</span>
-          </p>
         </div>
         <div class="members">
-          <MembersList :members-uid="partyData.membersUid" :owner-uid="partyData.ownerUid" />
+          <MembersCards :members-uid="partyData.membersUid" :owner-uid="partyData.ownerUid" />
         </div>
       </div>
     </div>

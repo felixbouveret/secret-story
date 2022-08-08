@@ -26,7 +26,6 @@ const { userData } = useUser();
 
 const name = ref('');
 const startingDate = ref();
-const endingDate = ref();
 const isLoading = ref(false);
 
 const onSubmit = async () => {
@@ -36,8 +35,7 @@ const onSubmit = async () => {
     name: name.value,
     ownerUid: userData.uid,
     membersUid: [userData.uid],
-    startingDate: startingDate.value,
-    endingDate: endingDate.value
+    startingDate: startingDate.value
   };
   await createParty(party);
   isLoading.value = false;
@@ -56,12 +54,6 @@ const onSubmit = async () => {
           style="width: 100% !important"
           type="date"
           placeholder="Date de début"
-        />
-        <el-date-picker
-          v-model="endingDate"
-          style="width: 100% !important"
-          type="date"
-          placeholder="Date de fin"
         />
         <el-button native-type="submit" type="primary">Créer</el-button>
       </form>
