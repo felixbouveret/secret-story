@@ -14,7 +14,6 @@ import {
 } from 'firebase/firestore';
 import { customAlphabet } from 'nanoid';
 const alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-const nanoid = customAlphabet(alphabet, 8);
 
 import db from '@/api/firestore';
 
@@ -23,6 +22,7 @@ import { PartyInterface, PartyMemberInterface } from './types';
 
 export const createParty = async (party: PartyInterface, owner: PartyMemberInterface) => {
   try {
+    const nanoid = customAlphabet(alphabet, 8);
     const id = nanoid();
     await setDoc(doc(db, 'parties', id), { ...party, id });
     await addPartyMember(id, owner);
@@ -41,16 +41,6 @@ export const getParty = async (uid: string) => {
     // doc.data() will be undefined in this case
     console.log('No such document!');
   }
-};
-
-export const getParties = async (uid: string) => {
-  const q = query(collection(db, 'parties'), where('membersUid', 'array-contains', uid));
-
-  const querySnapshot = await getDocs(q);
-  querySnapshot.forEach((doc) => {
-    // doc.data() is never undefined for query doc snapshots
-    console.log(doc.id, ' => ', doc.data());
-  });
 };
 
 export const listenParties = (uid: string, callback: (parties: PartyInterface[]) => void) => {
@@ -89,6 +79,7 @@ export const leaveParty = async (partyId: string, userId: string) => {
     await updateDoc(doc(db, 'parties', partyId), {
       membersUid: arrayRemove(userId)
     });
+    await deleteDoc(doc(db, 'parties', partyId, 'members', userId));
   } catch (e) {
     console.error('Error updating document: ', e);
   }
@@ -97,7 +88,6 @@ export const leaveParty = async (partyId: string, userId: string) => {
 export const deleteParty = async (partyId: string) => {
   try {
     await deleteDoc(doc(db, 'parties', partyId));
-    await deleteDoc(doc(db, 'parties', partyId, 'membersUid'));
   } catch (e) {
     console.error('Error updating document: ', e);
   }

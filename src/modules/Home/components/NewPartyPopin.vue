@@ -52,7 +52,7 @@ const onSubmit = async () => {
   <PopinContainer v-if="computedIsDisplayed" @update:is-displayed="computedIsDisplayed = false">
     <div class="newPartyPopinContainer">
       <h2>Votre Secret Story</h2>
-      <form @submit.prevent="onSubmit">
+      <form class="newPartyPopinContainer" @submit.prevent="onSubmit">
         <el-input id="name" v-model="name" placeholder="Son nom" type="name" />
         <el-date-picker
           v-model="startingDate"
