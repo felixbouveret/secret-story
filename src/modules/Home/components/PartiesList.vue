@@ -1,6 +1,13 @@
 <script lang="ts" setup>
-import { CopyDocument, StarFilled, UserFilled } from '@element-plus/icons-vue';
-import { format } from 'date-fns';
+import { ArrowRight, CircleClose, CopyDocument } from '@element-plus/icons-vue';
+
+import MembersList from '@/components/MembersList';
+import { useDate } from '@/composables/useDate.js';
+import { useUser } from '@/composables/useUser/index.js';
+import router from '@/router';
+
+const { userData } = useUser();
+const { formatDateSeconds } = useDate();
 
 const props = defineProps({
   parties: {
@@ -9,8 +16,8 @@ const props = defineProps({
   }
 });
 
-const formatDate = (row, column, cellValue) =>
-  format(new Date(cellValue.seconds * 1000), 'dd/MM/yyyy');
+const formatDate = (_: unknown, __: unknown, cellValue: any) =>
+  formatDateSeconds(cellValue.seconds);
 
 const copyId = (id: string) => {
   navigator.clipboard.writeText(id);
@@ -31,7 +38,7 @@ const copyId = (id: string) => {
               :plain="false"
               size="small"
               @click="copyId(scope.row.id)"
-            ></el-button>
+            />
           </el-tooltip>
         </div>
       </template>
@@ -41,21 +48,26 @@ const copyId = (id: string) => {
     <el-table-column label="Fin" prop="endingDate" :formatter="formatDate" />
     <el-table-column label="Membres" width="150px" load>
       <template #default="scope">
-        <div style="display: flex; gap: 4px; flex-wrap: wrap">
-          <span v-for="(member, index) in scope.row.members" :key="index" class="member">
-            <StarFilled
-              v-if="scope.row.ownerUid === member.uid"
-              class="owner"
-              :size="8"
-              color="#D4AF37"
-            />
-            <el-tooltip :content="member.displayName">
-              <el-avatar :size="24" :src="member.photoUrl" @error="() => !member.photoUrl">
-                <UserFilled width="16px" />
-              </el-avatar>
-            </el-tooltip>
-          </span>
-        </div>
+        <MembersList :members-uid="scope.row.membersUid" :owner-uid="scope.row.ownerUid" is-small />
+      </template>
+    </el-table-column>
+    <el-table-column label="Actions">
+      <template #default="scope">
+        <el-tooltip :content="scope.row.ownerUid === userData.uid ? 'Supprimer' : 'Quitter'">
+          <el-button
+            :icon="CircleClose"
+            :plain="false"
+            type="danger"
+            size="small"
+            @click="copyId(scope.row.id)"
+          />
+        </el-tooltip>
+        <el-button
+          :icon="ArrowRight"
+          :plain="false"
+          size="small"
+          @click="router.push({ name: 'Party', params: { id: scope.row.id } })"
+        />
       </template>
     </el-table-column>
   </el-table>

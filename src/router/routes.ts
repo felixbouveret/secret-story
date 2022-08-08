@@ -1,5 +1,6 @@
 import AuthPage from '@/modules/Auth';
 import HomePage from '@/modules/Home';
+import PartyPage from '@/modules/Party';
 
 export default [
   {
@@ -11,5 +12,10 @@ export default [
     path: '/',
     name: 'Home',
     component: HomePage
+  },
+  {
+    path: '/party/:id',
+    name: 'Party',
+    component: PartyPage
   }
 ];
