@@ -18,7 +18,8 @@ const alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 import db from '@/api/firestore';
 
 import { getMultipleUsers, getUser } from '../users';
-import { PartyInterface, PartyMemberInterface } from './types';
+import { UserInterface } from '../users/types';
+import { AnecdoteInterface, PartyInterface, PartyMemberInterface } from './types';
 
 export const createParty = async (party: PartyInterface, owner: PartyMemberInterface) => {
   try {
@@ -54,6 +55,10 @@ export const listenParties = (uid: string, callback: (parties: PartyInterface[])
     callback(parties);
   });
 };
+export const listenParty = (partyUid: string, callback: (partyData: PartyInterface) => void) =>
+  onSnapshot(doc(db, 'parties', partyUid), (querySnapshot) => {
+    if (querySnapshot.exists()) callback(querySnapshot.data() as PartyInterface);
+  });
 
 export const updateParty = async (party: PartyInterface) => {
   try {
@@ -129,6 +134,37 @@ export const getAllPartyMembers = async (partyId: string, membersUids: string[])
       ...membersStatus.find((member) => member.uid === personalInfos.uid)
     }));
     return result;
+  } catch (e) {
+    console.error('Error adding document: ', e);
+  }
+};
+
+export const listenPartyMembers = (
+  partyUid: string,
+  callback: (partyData: UserInterface[]) => void
+) =>
+  onSnapshot(collection(db, 'parties', partyUid, 'members'), async (querySnapshot) => {
+    const membersStatus: UserInterface[] = [];
+    querySnapshot.forEach((doc) => membersStatus.push(doc.data() as UserInterface));
+    const membersUids = membersStatus.map((member) => member.uid);
+    const membersPersonalInfos = await getMultipleUsers(membersUids);
+
+    const result = membersPersonalInfos.map((personalInfos) => ({
+      ...personalInfos,
+      ...membersStatus.find((member) => member.uid === personalInfos.uid)
+    }));
+
+    callback(result);
+  });
+
+export const addAnecdotes = async (
+  partyId: string,
+  memberUid: string,
+  anecdotes: AnecdoteInterface[]
+) => {
+  try {
+    await setDoc(doc(db, 'parties', partyId, 'members', memberUid), { anecdotes }, { merge: true });
+    await updateDoc(doc(db, 'parties', partyId, 'members', memberUid), { isReady: true });
   } catch (e) {
     console.error('Error adding document: ', e);
   }

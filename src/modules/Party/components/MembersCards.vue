@@ -1,50 +1,16 @@
 <script lang="ts" setup>
 import { UserFilled } from '@element-plus/icons-vue';
-import { onMounted, PropType, ref, watch } from 'vue';
 
-import { getAllPartyMembers } from '@/api/parties';
+import { usePartyPage } from '../composbles/usePartyPage.js';
 
-const props = defineProps({
-  membersUid: {
-    type: Array as PropType<string[]>,
-    default: () => []
-  },
-  ownerUid: {
-    type: String,
-    default: ''
-  },
-  partyId: {
-    type: String,
-    default: ''
-  },
-  isSmall: {
-    type: Boolean,
-    default: false
-  },
-  skeletonNumber: {
-    type: Number,
-    default: 3
-  }
-});
-const isLoading = ref(false);
-const members = ref();
-
-onMounted(async () => {
-  isLoading.value = true;
-  members.value = await getAllPartyMembers(props.partyId, props.membersUid);
-  isLoading.value = false;
-});
-
-watch(props.membersUid, async (newList) => {
-  members.value = await getAllPartyMembers(props.partyId, newList);
-});
+const { partyData } = usePartyPage();
 </script>
 
 <template>
-  <ul v-if="!isLoading" class="list">
-    <li v-for="(member, index) in members" :key="index" class="item">
+  <ul class="list">
+    <li v-for="(member, index) in partyData.members" :key="index" class="item">
       <el-avatar
-        :class="{ isOwner: member.uid === ownerUid }"
+        :class="{ isOwner: member.isOwner }"
         :size="64"
         :src="member.photoUrl"
         @error="() => !member.photoUrl"
@@ -56,11 +22,6 @@ watch(props.membersUid, async (newList) => {
       <el-tag v-else type="success">Prêt</el-tag>
     </li>
   </ul>
-  <el-skeleton v-else class="list" :style="`--el-skeleton-circle-size: ${32}px`" animated>
-    <template #template>
-      <el-skeleton-item v-for="_ in skeletonNumber" :key="_" variant="circle" />
-    </template>
-  </el-skeleton>
 </template>
 
 <style lang="scss" scoped>
