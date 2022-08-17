@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { computed } from '@vue/reactivity';
 import { onUnmounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 
@@ -24,6 +25,8 @@ const onPartyStart = async () => {
   await startParty(partyData.party.id);
   isLoading.value = false;
 };
+
+const areMembersReady = computed(() => partyData.members.every((member) => member.isReady));
 
 onUnmounted(() => {
   unsubPartyListen();
@@ -60,9 +63,17 @@ onUnmounted(() => {
           </el-button>
         </div>
         <el-alert
-          v-if="!partyData.party.canStart"
+          v-if="!areMembersReady"
           title="Tous les utilisateurs doivent être prêts pour lancer la partie"
           type="info"
+          center
+          show-icon
+          :closable="false"
+        />
+        <el-alert
+          v-else-if="!partyData.party.isStarted"
+          title="La partie peut commencer"
+          type="success"
           center
           show-icon
           :closable="false"
