@@ -1,3 +1,4 @@
+import * as cors from 'cors';
 import * as admin from 'firebase-admin';
 import * as functions from 'firebase-functions';
 
@@ -25,10 +26,9 @@ const shuffleMembersAnecdotes = (members: PartyMemberInterface[]): any[] => {
     );
     referenceArray.splice(referenceArray.indexOf(randomItem), 1);
     return {
-      [member.uid]: {
-        anecdotesOwnerUid: randomItem.uid,
-        anecdotes: randomItem.anecdotes
-      }
+      guesserUid: member.uid,
+      anecdotesOwnerUid: randomItem.uid,
+      anecdotes: randomItem.anecdotes
     };
   });
   if (!shuffled.every((e) => e !== undefined)) return shuffleMembersAnecdotes(members);
@@ -40,13 +40,13 @@ export const shuffleAnecdotes = functions.https.onRequest(async (req, res) => {
   const partyId = req.query.partyId as string;
 
   if (!partyId) {
-    res.status(404).send('Missing partyId');
+    cors()(req, res, () => res.json({ status: 404, message: 'Missing partyId' }));
     return;
   }
   const membersDocuments = await db.collection(`parties/${partyId}/members`).listDocuments();
 
   if (membersDocuments.length === 0) {
-    res.status(404).send('No members found');
+    cors()(req, res, () => res.json({ status: 404, message: 'No members found' }));
     return;
   }
 
@@ -57,15 +57,12 @@ export const shuffleAnecdotes = functions.https.onRequest(async (req, res) => {
     })
   )) as PartyMemberInterface[];
 
-  const shuffledMembers = shuffleMembersAnecdotes(partyMembers);
+  const shuffledAnecdotes = shuffleMembersAnecdotes(partyMembers);
 
   await Promise.all(
-    shuffledMembers.map(async (member) => {
-      await db
-        .collection(`parties/${partyId}/anecdotesToGuess`)
-        .doc(Object.keys(member)[0])
-        .set(member);
+    shuffledAnecdotes.map(async (member) => {
+      await db.collection(`parties/${partyId}/anecdotesToGuess`).doc(member.guesserUid).set(member);
     })
   );
-  res.status(200).send('OK');
+  cors()(req, res, () => res.send({ status: 'ok', data: 'Party started' }));
 });

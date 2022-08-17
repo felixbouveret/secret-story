@@ -15,7 +15,7 @@ import {
 import { customAlphabet } from 'nanoid';
 const alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
-import { httpsCallable } from 'firebase/functions';
+import { httpsCallableFromURL } from 'firebase/functions';
 
 import db from '@/api/firestore';
 
@@ -103,9 +103,13 @@ export const deleteParty = async (partyId: string) => {
 
 export const startParty = async (partyId: string) => {
   try {
-    const shuffleAnecdotes = httpsCallable(functions, 'shuffleAnecdotes');
+    const shuffleAnecdotes = httpsCallableFromURL(
+      functions,
+      'https://us-central1-secret-story-b720b.cloudfunctions.net/shuffleAnecdotes?partyId=' +
+        partyId
+    );
     await shuffleAnecdotes({ partyId });
-    await setDoc(doc(db, 'parties', partyId), { isStarted: true }, { merge: true });
+    await updateDoc(doc(db, 'parties', partyId), { isStarted: true });
   } catch (e) {
     console.error('Error adding document: ', e);
   }
