@@ -12,8 +12,6 @@ export interface PartyMemberInterface {
 export interface PartyInterface {
   id: string;
   name: string;
-  isStarted: boolean;
-  canStart: boolean;
   membersUid: string[];
   startingDate: Date;
 }

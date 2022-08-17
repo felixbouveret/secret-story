@@ -15,8 +15,11 @@ import {
 import { customAlphabet } from 'nanoid';
 const alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
+import { httpsCallable } from 'firebase/functions';
+
 import db from '@/api/firestore';
 
+import functions from '../functions';
 import { getMultipleUsers, getUser } from '../users';
 import { UserInterface } from '../users/types';
 import { AnecdoteInterface, PartyInterface, PartyMemberInterface } from './types';
@@ -95,6 +98,16 @@ export const deleteParty = async (partyId: string) => {
     await deleteDoc(doc(db, 'parties', partyId));
   } catch (e) {
     console.error('Error updating document: ', e);
+  }
+};
+
+export const startParty = async (partyId: string) => {
+  try {
+    const shuffleAnecdotes = httpsCallable(functions, 'shuffleAnecdotes');
+    await shuffleAnecdotes({ partyId });
+    await setDoc(doc(db, 'parties', partyId), { isStarted: true }, { merge: true });
+  } catch (e) {
+    console.error('Error adding document: ', e);
   }
 };
 

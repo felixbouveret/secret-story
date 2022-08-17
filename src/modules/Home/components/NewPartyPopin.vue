@@ -33,6 +33,8 @@ const onSubmit = async () => {
   const party = {
     id: '',
     name: name.value,
+    isStarted: false,
+    canStart: false,
     ownerUid: userData.uid,
     membersUid: [userData.uid],
     startingDate: startingDate.value

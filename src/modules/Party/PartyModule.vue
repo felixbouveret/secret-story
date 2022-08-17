@@ -2,6 +2,7 @@
 import { onUnmounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 
+import { startParty } from '@/api/parties';
 import { useDate } from '@/composables/useDate';
 
 import AnecdotesPopin from './components/AnecdotesPopin.vue';
@@ -11,11 +12,18 @@ import { usePartyPage } from './composbles/usePartyPage';
 const { formatDateSeconds } = useDate();
 const { partyData, triggerPartyListen, triggerPartyMembersListen } = usePartyPage();
 const route = useRoute();
+const isLoading = ref(false);
 
 const anecdotesPopinDisplayed = ref(false);
 
 const unsubPartyListen = triggerPartyListen(route.params.id);
 const unsubPartyMembersListen = triggerPartyMembersListen(route.params.id);
+
+const onPartyStart = async () => {
+  isLoading.value = true;
+  await startParty(partyData.party.id);
+  isLoading.value = false;
+};
 
 onUnmounted(() => {
   unsubPartyListen();
@@ -34,9 +42,31 @@ onUnmounted(() => {
             <span>{{ formatDateSeconds(partyData.party.startingDate.seconds) }}</span>
           </p>
         </div>
-        <el-button type="success" @click="anecdotesPopinDisplayed = true"
-          >Ajouter mes anecdotes</el-button
-        >
+        <div>
+          <el-button
+            v-if="!partyData.party.isStarted"
+            type="success"
+            @click="anecdotesPopinDisplayed = true"
+          >
+            Ajouter mes anecdotes
+          </el-button>
+          <el-button
+            v-if="!partyData.party.isStarted"
+            :loading="isLoading"
+            type="warning"
+            @click="onPartyStart"
+          >
+            Lancer la partie
+          </el-button>
+        </div>
+        <el-alert
+          v-if="!partyData.party.canStart"
+          title="Tous les utilisateurs doivent être prêts pour lancer la partie"
+          type="info"
+          center
+          show-icon
+          :closable="false"
+        />
         <div class="members">
           <MembersCards
             :members-uid="partyData.party.membersUid"
