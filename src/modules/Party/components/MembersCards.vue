@@ -33,8 +33,12 @@ const { partyData } = usePartyPage();
 <style lang="scss" scoped>
 .list {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 20px;
+
+  @media screen and (min-width: 768px) {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
 .item {
   display: flex;

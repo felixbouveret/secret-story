@@ -31,6 +31,7 @@ const onPartyStart = async () => {
 };
 
 const areMembersReady = computed(() => partyData.members.every((member) => member.isReady));
+const isOwner = computed(() => partyData.members.find(({ uid }) => uid === userData.uid).isHost);
 
 onUnmounted(() => {
   unsubPartyListen();
@@ -52,7 +53,7 @@ onUnmounted(() => {
         <div v-if="partyData.anecdotesToAnwser?.length">
           <p v-for="(item, index) in partyData.anecdotesToAnwser" :key="index">{{ item }}</p>
         </div>
-        <div>
+        <div class="buttons">
           <el-button
             v-if="!partyData.party.isStarted"
             type="success"
@@ -61,7 +62,7 @@ onUnmounted(() => {
             Ajouter mes anecdotes
           </el-button>
           <el-button
-            v-if="!partyData.party.isStarted"
+            v-if="!partyData.party.isStarted && isOwner"
             :loading="isLoading"
             type="warning"
             @click="onPartyStart"
@@ -134,6 +135,13 @@ onUnmounted(() => {
 
 .title {
   @include bigTitle;
+}
+
+.buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
 }
 
 .infos {
