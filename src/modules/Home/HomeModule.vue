@@ -5,6 +5,7 @@ import { onUnmounted, ref } from 'vue';
 import { deleteParty, leaveParty, listenParties } from '@/api/parties';
 import { getUser } from '@/api/users';
 import MembersList from '@/components/MembersList';
+import { useDate } from '@/composables/useDate';
 import { useUser } from '@/composables/useUser';
 import router from '@/router';
 
@@ -14,6 +15,7 @@ import NewPartyPopin from './components/NewPartyPopin.vue';
 const isNewPopinDisplayed = ref(false);
 const isJoinPopinDisplayed = ref(false);
 const { userData } = useUser();
+const { formatDateSeconds } = useDate();
 const userParties = ref();
 
 const copyId = (id: string) => {
@@ -48,12 +50,15 @@ onUnmounted(() => {
 <template>
   <div class="homeRoot">
     <h1 class="title">SLT la zone</h1>
-    <!-- <PartiesList :parties="userParties" /> -->
     <div class="cardsContainer">
       <el-card v-for="(party, index) in userParties" :key="index" class="box-card">
         <template #header>
           <div class="card-header">
-            <h2 class="cardTitle">{{ party.name }}</h2>
+            <div class="cardInfos">
+              <h2 class="cardTitle">{{ party.name }}</h2>
+              <span class="cardDate">{{ formatDateSeconds(party.startingDate.seconds) }}</span>
+            </div>
+
             <div style="display: flex; gap: 8px; align-items: center">
               <p>
                 {{ party.id }}
@@ -127,6 +132,16 @@ onUnmounted(() => {
 
 .buttonsContainer {
   max-width: 400px;
+}
+
+.cardInfos {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cardDate {
+  font-size: 12px;
 }
 
 .cardsContainer {
