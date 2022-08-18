@@ -77,8 +77,7 @@ const onSubmit = async () => {
   flex-direction: column;
   align-items: center;
   gap: 24px;
-  max-width: 400px;
-  width: 100vw;
+  width: 100%;
 }
 
 .inner {

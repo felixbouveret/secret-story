@@ -25,9 +25,16 @@ const getAnecdotesUserToAnwser = async (partyUid: string) => {
   partyData.anecdotesToAnwser = await getAnecdotesToAnwser(partyUid, userData.uid);
 };
 
+const resetPartyData = () => {
+  partyData.party = {};
+  partyData.members = [];
+  partyData.anecdotesToAnwser = [];
+};
+
 export const usePartyPage = () => ({
   partyData,
   triggerPartyListen,
   triggerPartyMembersListen,
-  getAnecdotesUserToAnwser
+  getAnecdotesUserToAnwser,
+  resetPartyData
 });

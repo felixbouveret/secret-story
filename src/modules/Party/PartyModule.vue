@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { computed } from '@vue/reactivity';
-import { onUnmounted, ref } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 
 import { startParty } from '@/api/parties';
@@ -13,7 +13,7 @@ import MembersCards from './components/MembersCards.vue';
 import { usePartyPage } from './composbles/usePartyPage';
 
 const { formatDateSeconds } = useDate();
-const { partyData, triggerPartyListen, triggerPartyMembersListen } = usePartyPage();
+const { partyData, triggerPartyListen, triggerPartyMembersListen, resetPartyData } = usePartyPage();
 const { userData } = useUser();
 const route = useRoute();
 const isLoading = ref(false);
@@ -32,6 +32,10 @@ const onPartyStart = async () => {
 
 const areMembersReady = computed(() => partyData.members.every((member) => member.isReady));
 const isOwner = computed(() => partyData.members.find(({ uid }) => uid === userData.uid).isHost);
+
+onMounted(() => {
+  resetPartyData();
+});
 
 onUnmounted(() => {
   unsubPartyListen();
@@ -64,6 +68,7 @@ onUnmounted(() => {
           <el-button
             v-if="!partyData.party.isStarted && isOwner"
             :loading="isLoading"
+            :disabled="!areMembersRead && partyData.members?.length"
             type="warning"
             @click="onPartyStart"
           >
@@ -80,6 +85,7 @@ onUnmounted(() => {
         </div>
         <el-alert
           v-if="!areMembersReady"
+          class="alert"
           title="Tous les utilisateurs doivent être prêts pour lancer la partie"
           type="info"
           center
@@ -87,7 +93,17 @@ onUnmounted(() => {
           :closable="false"
         />
         <el-alert
+          v-else-if="partyData.members?.length"
+          class="alert"
+          title="La partie doit avoir plus d'un membre"
+          type="info"
+          center
+          show-icon
+          :closable="false"
+        />
+        <el-alert
           v-else-if="!partyData.party.isStarted"
+          class="alert"
           title="La partie peut commencer"
           type="success"
           center
@@ -135,6 +151,7 @@ onUnmounted(() => {
 
 .title {
   @include bigTitle;
+  text-align: center;
 }
 
 .buttons {
@@ -150,6 +167,16 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   gap: 24px;
+}
+
+.alert {
+  width: 100%;
+  text-align: center;
+
+  @media screen and (min-width: 768px) {
+    width: auto;
+    text-align: left;
+  }
 }
 
 .dates {
