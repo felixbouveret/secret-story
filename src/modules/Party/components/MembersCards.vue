@@ -18,8 +18,14 @@ const { partyData } = usePartyPage();
         <UserFilled :width="32" />
       </el-avatar>
       <p>{{ member.displayName }}</p>
-      <el-tag v-if="!member.isReady" type="warning">En attente de réponses</el-tag>
-      <el-tag v-else type="success">Prêt</el-tag>
+      <template v-if="!partyData.party.isStarted">
+        <el-tag v-if="!member.isReady" type="warning">En attente de réponses</el-tag>
+        <el-tag v-else type="success">Prêt</el-tag>
+      </template>
+      <template v-else>
+        <el-tag v-if="!member.guessed" type="warning">Cherche toujours...</el-tag>
+        <el-tag v-else type="success">À trouvé !</el-tag>
+      </template>
     </li>
   </ul>
 </template>

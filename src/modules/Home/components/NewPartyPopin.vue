@@ -42,7 +42,8 @@ const onSubmit = async () => {
   const owner = {
     uid: userData.uid,
     isReady: false,
-    isHost: true
+    isHost: true,
+    guessed: false
   };
   await createParty(party, owner);
   isLoading.value = false;

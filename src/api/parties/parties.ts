@@ -186,3 +186,20 @@ export const addAnecdotes = async (
     console.error('Error adding document: ', e);
   }
 };
+
+export const getAnecdotesToAnwser = async (partyId: string, memberUid: string) => {
+  try {
+    const docRef = doc(db, 'parties', partyId, 'anecdotesToGuess', memberUid).withConverter({
+      toFirestore: () => ({}),
+      fromFirestore: (snapshot) => {
+        const anecdotes = snapshot.data().anecdotes;
+        return anecdotes.map(({ content }: { content: string }) => content);
+      }
+    });
+    const docSnap = await getDoc(docRef);
+
+    return docSnap.data();
+  } catch (e) {
+    console.error('Error adding document: ', e);
+  }
+};

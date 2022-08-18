@@ -6,6 +6,7 @@ export interface PartyMemberInterface {
   uid: string;
   isReady: boolean;
   isHost: boolean;
+  guessed: boolean;
   anecdotes?: AnecdoteInterface[];
 }
 

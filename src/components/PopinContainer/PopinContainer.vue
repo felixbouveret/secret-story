@@ -51,5 +51,7 @@ onUnmounted(() => {
   border-radius: 8px;
   box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
   border: solid 1px #e6e6e6;
+  width: 100%;
+  max-width: 600px;
 }
 </style>

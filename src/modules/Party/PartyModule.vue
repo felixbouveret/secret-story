@@ -5,17 +5,21 @@ import { useRoute } from 'vue-router';
 
 import { startParty } from '@/api/parties';
 import { useDate } from '@/composables/useDate';
+import { useUser } from '@/composables/useUser';
 
 import AnecdotesPopin from './components/AnecdotesPopin.vue';
+import AnswerPopin from './components/AnswerPopin.vue';
 import MembersCards from './components/MembersCards.vue';
 import { usePartyPage } from './composbles/usePartyPage';
 
 const { formatDateSeconds } = useDate();
 const { partyData, triggerPartyListen, triggerPartyMembersListen } = usePartyPage();
+const { userData } = useUser();
 const route = useRoute();
 const isLoading = ref(false);
 
 const anecdotesPopinDisplayed = ref(false);
+const answerPopinDisplayed = ref(false);
 
 const unsubPartyListen = triggerPartyListen(route.params.id);
 const unsubPartyMembersListen = triggerPartyMembersListen(route.params.id);
@@ -45,6 +49,9 @@ onUnmounted(() => {
             <span>{{ formatDateSeconds(partyData.party.startingDate.seconds) }}</span>
           </p>
         </div>
+        <div v-if="partyData.anecdotesToAnwser?.length">
+          <p v-for="(item, index) in partyData.anecdotesToAnwser" :key="index">{{ item }}</p>
+        </div>
         <div>
           <el-button
             v-if="!partyData.party.isStarted"
@@ -60,6 +67,14 @@ onUnmounted(() => {
             @click="onPartyStart"
           >
             Lancer la partie
+          </el-button>
+          <el-button
+            v-if="partyData.party.isStarted && !userData.guessed"
+            :loading="isLoading"
+            type="success"
+            @click="answerPopinDisplayed = true"
+          >
+            Proposer une réponse
           </el-button>
         </div>
         <el-alert
@@ -94,6 +109,11 @@ onUnmounted(() => {
       :is-displayed="anecdotesPopinDisplayed"
       :party-id="route.params.id"
       @update:is-displayed="anecdotesPopinDisplayed = false"
+    />
+    <AnswerPopin
+      :is-displayed="answerPopinDisplayed"
+      :party-id="route.params.id"
+      @update:is-displayed="answerPopinDisplayed = false"
     />
   </div>
 </template>
