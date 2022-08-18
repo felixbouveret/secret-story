@@ -1,31 +1,37 @@
 <script lang="ts" setup>
-import { CircleClose } from '@element-plus/icons-vue';
+import { ArrowLeft, SwitchButton } from '@element-plus/icons-vue';
+import { computed } from '@vue/reactivity';
+import { useRoute } from 'vue-router';
 
 import { useUser } from '@/composables/useUser';
 import router from '@/router';
 
 const { userData, logout } = useUser();
+const route = useRoute();
 
 const onLogout = async () => {
   await logout();
   router.push({ name: 'Auth' });
 };
+
+const goBack = async () => {
+  router.push({ name: 'Home' });
+};
+
+const isPartyPage = computed(() => route.name === 'Party');
 </script>
 
 <template>
   <header class="nav">
     <ul class="list">
+      <li v-if="isPartyPage" class="item">
+        <el-button circle :icon="ArrowLeft" :plain="false" @click="goBack" />
+      </li>
       <li class="item">
         <img :src="userData.photoUrl" alt="Profile picture" />
       </li>
       <li class="item">
-        <el-button
-          circle
-          :icon="CircleClose"
-          :plain="false"
-          type="danger"
-          @click="onLogout"
-        ></el-button>
+        <el-button circle :icon="SwitchButton" :plain="false" type="danger" @click="onLogout" />
       </li>
     </ul>
   </header>
