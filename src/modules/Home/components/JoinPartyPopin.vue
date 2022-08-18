@@ -33,7 +33,8 @@ const onSubmit = async () => {
   await joinParty(partyId.value, {
     uid: userData.uid,
     isReady: false,
-    isHost: false
+    isHost: false,
+    guessed: false
   });
 
   isLoading.value = false;
@@ -57,7 +58,6 @@ const onSubmit = async () => {
   flex-direction: column;
   align-items: center;
   gap: 24px;
-  max-width: 400px;
-  width: 100vw;
+  width: 100%;
 }
 </style>
