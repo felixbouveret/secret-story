@@ -28,7 +28,11 @@ const isPartyPage = computed(() => route.name === 'Party');
         <el-button circle :icon="ArrowLeft" :plain="false" @click="goBack" />
       </li>
       <li class="item">
-        <img :src="userData.photoUrl" alt="Profile picture" />
+        <img
+          :src="userData.photoUrl"
+          alt="Profile picture"
+          @click="router.push({ name: 'Account' })"
+        />
       </li>
       <li class="item">
         <el-button circle :icon="SwitchButton" :plain="false" type="danger" @click="onLogout" />
