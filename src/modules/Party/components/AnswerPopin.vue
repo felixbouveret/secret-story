@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ElMessageBox } from 'element-plus';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import { computed, ref } from 'vue';
 
 import { makeAGuess } from '@/api/parties';
@@ -53,6 +53,7 @@ const onSubmit = async () => {
 
   const response = await makeAGuess(payload);
   if (response.isCorrect) onSuccess();
+  else onError();
   isLoading.value = false;
 };
 
@@ -67,6 +68,10 @@ const onSuccess = () => {
       }
     }
   );
+};
+
+const onError = () => {
+  ElMessage.error("Mauvaise réponse,t'es à chier");
 };
 </script>
 
@@ -130,6 +135,8 @@ const onSuccess = () => {
 
 .members {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 8px;
 }
 
