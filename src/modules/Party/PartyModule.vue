@@ -86,33 +86,36 @@ onUnmounted(() => {
             Proposer une réponse
           </el-button>
         </div>
-        <el-alert
-          v-if="!areMembersReady"
-          class="alert"
-          title="Tous les utilisateurs doivent être prêts pour lancer la partie"
-          type="info"
-          center
-          show-icon
-          :closable="false"
-        />
-        <el-alert
-          v-else-if="partyData.members?.length && !partyData.party.isStarted"
-          class="alert"
-          title="La partie doit avoir plus d'un membre"
-          type="info"
-          center
-          show-icon
-          :closable="false"
-        />
-        <el-alert
-          v-else-if="!partyData.party.isStarted"
-          class="alert"
-          title="La partie peut commencer"
-          type="success"
-          center
-          show-icon
-          :closable="false"
-        />
+        <template v-if="!partyData.party.isStarted">
+          <el-alert
+            v-if="partyData.members?.length < 1"
+            class="alert"
+            title="La partie doit avoir plus d'un membre"
+            type="info"
+            center
+            show-icon
+            :closable="false"
+          />
+          <el-alert
+            v-else-if="!areMembersReady"
+            class="alert"
+            title="Tous les utilisateurs doivent être prêts pour lancer la partie"
+            type="info"
+            center
+            show-icon
+            :closable="false"
+          />
+          <el-alert
+            v-else
+            class="alert"
+            title="La partie peut commencer"
+            type="success"
+            center
+            show-icon
+            :closable="false"
+          />
+        </template>
+
         <div class="members">
           <MembersCards
             :members-uid="partyData.party.membersUid"
