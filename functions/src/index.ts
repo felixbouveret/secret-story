@@ -104,8 +104,8 @@ export const makeAGuess = functions.https.onRequest(async (req, res) => {
   ) {
     cors(req, res, () =>
       res
-        .status(400)
-        .send({ data: { code: 400, message: 'One of your answer is incorrect', isCorrect: false } })
+        .status(204)
+        .send({ data: { code: 204, message: 'One of your answer is incorrect', isCorrect: false } })
     );
     return;
   }
