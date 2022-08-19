@@ -46,6 +46,8 @@ onUnmounted(() => {
   z-index: -1;
 }
 .popinContainer {
+  max-height: 100%;
+  overflow: auto;
   padding: 40px 20px;
   background-color: white;
   border-radius: 8px;

@@ -42,6 +42,8 @@ const ancdoteOwner = ref({
 });
 const deceitAnecdote = ref('');
 
+const isDisabled = computed(() => !!(!ancdoteOwner.value.uid && !deceitAnecdote.value));
+
 const onSubmit = async () => {
   isLoading.value = true;
   const payload = {
@@ -106,7 +108,13 @@ const onError = () => {
           {{ item }}
         </div>
       </div>
-      <el-button native-type="submit" type="primary" :loading="isLoading" @click="onSubmit">
+      <el-button
+        native-type="submit"
+        type="primary"
+        :loading="isLoading"
+        :disabled="isDisabled"
+        @click="onSubmit"
+      >
         Envoyer
       </el-button>
     </div>
