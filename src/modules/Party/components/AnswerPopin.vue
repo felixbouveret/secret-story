@@ -55,6 +55,7 @@ const onSubmit = async () => {
 
   const response = await makeAGuess(payload);
   if (response.isCorrect) onSuccess();
+  else if (response.isTooEarly) onTooEarly();
   else onError();
   isLoading.value = false;
 };
@@ -73,7 +74,12 @@ const onSuccess = () => {
 };
 
 const onError = () => {
-  ElMessage.error("Mauvaise réponse,t'es à chier");
+  ElMessage.error("Mauvaise réponse, t'es à chier, reviens dans une heure.");
+  computedIsDisplayed.value = false;
+};
+const onTooEarly = () => {
+  ElMessage.error("Tu ne peux faire qu'une réponse par heure");
+  computedIsDisplayed.value = false;
 };
 </script>
 

@@ -125,9 +125,7 @@ const addPartyMember = async (partyId: string, member: PartyMemberInterface) => 
 
 const updatePartyMember = async (partyId: string, memberUid: string, payload: any) => {
   try {
-    console.log('???', payload);
-
-    await updateDoc(doc(db, 'parties', partyId, 'members', memberUid), payload);
+    await setDoc(doc(db, 'parties', partyId, 'members', memberUid), payload, { merge: true });
   } catch (e) {
     console.error('Error updating member: ', e);
   }
@@ -226,8 +224,15 @@ export const makeAGuess = async (payload: {
       'https://us-central1-secret-story-b720b.cloudfunctions.net/makeAGuess'
     );
     const { data } = await makeAGuess(payload);
-    if (data?.isCorrect)
-      await updatePartyMember(payload.partyId, payload.guesserUid, { guessed: true });
+    const updatePayload = {
+      guessed: false
+    } as {
+      guessed: boolean;
+      lastGuessDate?: Date;
+    };
+    if (data?.isCorrect) updatePayload.guessed = true;
+    if (!data?.isTooEarly) updatePayload.lastGuessDate = new Date();
+    await updatePartyMember(payload.partyId, payload.guesserUid, updatePayload);
     return data;
   } catch (e) {
     console.error('Error submiting your answer: ', e);

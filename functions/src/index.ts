@@ -86,6 +86,30 @@ export const makeAGuess = functions.https.onRequest(async (req, res) => {
   }
 
   const db = admin.firestore();
+  const userSnapshot = await db
+    .collection(`parties/${payload.partyId}/members`)
+    .doc(payload.guesserUid)
+    .get();
+
+  const user = userSnapshot.data();
+
+  if (user?.lastGuessDate) {
+    const formattedDate = new Date(user.lastGuessDate.seconds * 1000);
+    if (formattedDate.getTime() > Date.now() - 3600000) {
+      cors(req, res, () =>
+        res.status(200).send({
+          data: {
+            code: 200,
+            message: 'You can only make a guess once an hour',
+            isCorrect: false,
+            isTooEarly: true
+          }
+        })
+      );
+      return;
+    }
+  }
+
   const anecdotesToGuessSnapshot = await db
     .collection(`parties/${payload.partyId}/anecdotesToGuess`)
     .doc(payload.guesserUid)
@@ -104,12 +128,12 @@ export const makeAGuess = functions.https.onRequest(async (req, res) => {
   ) {
     cors(req, res, () =>
       res
-        .status(204)
-        .send({ data: { code: 204, message: 'One of your answer is incorrect', isCorrect: false } })
+        .status(200)
+        .send({ data: { code: 200, message: 'One of your answer is incorrect', isCorrect: false } })
     );
     return;
   }
   cors(req, res, () =>
-    res.status(200).send({ data: { message: 'Success', code: 200, isCorrect: true } })
+    res.status(200).send({ data: { code: 200, message: 'Success', isCorrect: true } })
   );
 });
