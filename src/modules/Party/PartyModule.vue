@@ -7,6 +7,7 @@ import { startParty } from '@/api/parties';
 import { useDate } from '@/composables/useDate';
 import { useUser } from '@/composables/useUser';
 
+import AnecdotesList from './components/AnecdotesList.vue';
 import AnecdotesPopin from './components/AnecdotesPopin.vue';
 import AnswerPopin from './components/AnswerPopin.vue';
 import MembersCards from './components/MembersCards.vue';
@@ -31,7 +32,11 @@ const onPartyStart = async () => {
 };
 
 const areMembersReady = computed(() => partyData.members.every((member) => member.isReady));
-const isOwner = computed(() => partyData.members.find(({ uid }) => uid === userData.uid).isHost);
+const isOwner = computed(() => partyData.members.find(({ uid }) => uid === userData.uid)?.isHost);
+const hasUserGuessed = computed(() => {
+  const currentUser = partyData.members.find(({ uid }) => uid === userData.uid);
+  return currentUser?.guessed;
+});
 
 onMounted(() => {
   resetPartyData();
@@ -54,9 +59,7 @@ onUnmounted(() => {
             <span>{{ formatDateSeconds(partyData.party.startingDate.seconds) }}</span>
           </p>
         </div>
-        <div v-if="partyData.anecdotesToAnwser?.length">
-          <p v-for="(item, index) in partyData.anecdotesToAnwser" :key="index">{{ item }}</p>
-        </div>
+        <AnecdotesList />
         <div class="buttons">
           <el-button
             v-if="!partyData.party.isStarted"
@@ -68,14 +71,14 @@ onUnmounted(() => {
           <el-button
             v-if="!partyData.party.isStarted && isOwner"
             :loading="isLoading"
-            :disabled="!areMembersRead && partyData.members?.length"
+            :disabled="!areMembersReady && partyData.members?.length"
             type="warning"
             @click="onPartyStart"
           >
             Lancer la partie
           </el-button>
           <el-button
-            v-if="partyData.party.isStarted && !userData.guessed"
+            v-if="partyData.party.isStarted && !hasUserGuessed"
             :loading="isLoading"
             type="success"
             @click="answerPopinDisplayed = true"
@@ -93,7 +96,7 @@ onUnmounted(() => {
           :closable="false"
         />
         <el-alert
-          v-else-if="partyData.members?.length"
+          v-else-if="partyData.members?.length && !partyData.party.isStarted"
           class="alert"
           title="La partie doit avoir plus d'un membre"
           type="info"

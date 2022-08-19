@@ -1,10 +1,11 @@
-import * as cors from 'cors';
+import * as Cors from 'cors';
 import * as admin from 'firebase-admin';
 import * as functions from 'firebase-functions';
 
-import { PartyMemberInterface } from './types';
+import { AnecdoteInterface, PartyMemberInterface } from './types';
 
 admin.initializeApp();
+const cors = Cors({ origin: true });
 
 // // Start writing Firebase Functions
 // // https://firebase.google.com/docs/functions/typescript
@@ -36,17 +37,17 @@ const shuffleMembersAnecdotes = (members: PartyMemberInterface[]): any[] => {
 };
 
 export const shuffleAnecdotes = functions.https.onRequest(async (req, res) => {
-  const db = admin.firestore();
   const partyId = req.query.partyId as string;
 
   if (!partyId) {
-    cors()(req, res, () => res.json({ status: 404, message: 'Missing partyId' }));
+    cors(req, res, () => res.json({ status: 404, message: 'Missing partyId' }));
     return;
   }
+  const db = admin.firestore();
   const membersDocuments = await db.collection(`parties/${partyId}/members`).listDocuments();
 
   if (membersDocuments.length === 0) {
-    cors()(req, res, () => res.json({ status: 404, message: 'No members found' }));
+    cors(req, res, () => res.json({ status: 404, message: 'No members found' }));
     return;
   }
 
@@ -64,5 +65,51 @@ export const shuffleAnecdotes = functions.https.onRequest(async (req, res) => {
       await db.collection(`parties/${partyId}/anecdotesToGuess`).doc(member.guesserUid).set(member);
     })
   );
-  cors()(req, res, () => res.send({ status: 'ok', data: 'Party started' }));
+  cors(req, res, () => res.send({ status: 'ok', data: 'Party started' }));
+});
+
+interface guessInterface {
+  partyId: string;
+  guesserUid: string;
+  anecdotesOwnerUid: string;
+  anecdote: string;
+}
+
+export const makeAGuess = functions.https.onRequest(async (req, res) => {
+  const payload = req.body.data as guessInterface | undefined;
+
+  if (!payload || !Object.keys(payload).length) {
+    cors(req, res, () =>
+      res.status(400).send({ data: { code: 400, message: 'Missing payload', isCorrect: false } })
+    );
+    return;
+  }
+
+  const db = admin.firestore();
+  const anecdotesToGuessSnapshot = await db
+    .collection(`parties/${payload.partyId}/anecdotesToGuess`)
+    .doc(payload.guesserUid)
+    .get();
+
+  const anecdotesToGuess = anecdotesToGuessSnapshot.data() as {
+    anecdotesOwnerUid: string;
+    anecdotes: AnecdoteInterface[];
+  };
+  const anecdotesOwnerUid = anecdotesToGuess.anecdotesOwnerUid;
+  const deceitAnecdote = anecdotesToGuess.anecdotes.find(({ isDeceit }) => isDeceit);
+
+  if (
+    anecdotesOwnerUid !== payload.anecdotesOwnerUid ||
+    deceitAnecdote?.content !== payload.anecdote
+  ) {
+    cors(req, res, () =>
+      res
+        .status(400)
+        .send({ data: { code: 400, message: 'One of your answer is incorrect', isCorrect: false } })
+    );
+    return;
+  }
+  cors(req, res, () =>
+    res.status(200).send({ data: { message: 'Success', code: 200, isCorrect: true } })
+  );
 });

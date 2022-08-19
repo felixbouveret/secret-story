@@ -2,9 +2,11 @@ import { reactive } from 'vue';
 
 import { getAnecdotesToAnwser, listenParty, listenPartyMembers } from '@/api/parties';
 import { PartyInterface } from '@/api/parties/types';
+import { useArray } from '@/composables/useArray';
 import { useUser } from '@/composables/useUser';
 
 const { userData } = useUser();
+const { shuffle } = useArray();
 
 const partyData = reactive(
   {} as { party: PartyInterface; members: any[]; anecdotesToAnwser: string[] }
@@ -22,7 +24,8 @@ const triggerPartyMembersListen = (partyUid: string) =>
   });
 
 const getAnecdotesUserToAnwser = async (partyUid: string) => {
-  partyData.anecdotesToAnwser = await getAnecdotesToAnwser(partyUid, userData.uid);
+  const anecdotes = await getAnecdotesToAnwser(partyUid, userData.uid);
+  partyData.anecdotesToAnwser = shuffle(anecdotes);
 };
 
 const resetPartyData = () => {

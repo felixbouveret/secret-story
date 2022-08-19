@@ -123,6 +123,16 @@ const addPartyMember = async (partyId: string, member: PartyMemberInterface) => 
   }
 };
 
+const updatePartyMember = async (partyId: string, memberUid: string, payload: any) => {
+  try {
+    console.log('???', payload);
+
+    await updateDoc(doc(db, 'parties', partyId, 'members', memberUid), payload);
+  } catch (e) {
+    console.error('Error updating member: ', e);
+  }
+};
+
 export const getPartyMember = async (partyId: string, memberUid: string) => {
   try {
     const memberPersonalInfos = await getUser(memberUid);
@@ -201,5 +211,25 @@ export const getAnecdotesToAnwser = async (partyId: string, memberUid: string) =
     return docSnap.data();
   } catch (e) {
     console.error('Error adding document: ', e);
+  }
+};
+
+export const makeAGuess = async (payload: {
+  partyId: string;
+  guesserUid: string;
+  anecdotesOwnerUid: string;
+  anecdote: string;
+}) => {
+  try {
+    const makeAGuess = httpsCallableFromURL(
+      functions,
+      'https://us-central1-secret-story-b720b.cloudfunctions.net/makeAGuess'
+    );
+    const { data } = await makeAGuess(payload);
+    if (data?.isCorrect)
+      await updatePartyMember(payload.partyId, payload.guesserUid, { guessed: true });
+    return data;
+  } catch (e) {
+    console.error('Error submiting your answer: ', e);
   }
 };
