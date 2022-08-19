@@ -15,7 +15,7 @@ const hasUserGuessed = computed(() => {
 </script>
 
 <template>
-  <div v-if="partyData.anecdotesToAnwser?.length && !hasUserGuessed">
+  <div v-if="partyData.anecdotesToAnwser?.length && !hasUserGuessed" class="anecdotes">
     <p v-for="(item, index) in partyData.anecdotesToAnwser" :key="index">{{ item }}</p>
   </div>
   <div v-else-if="hasUserGuessed" class="guessed">
@@ -32,6 +32,17 @@ const hasUserGuessed = computed(() => {
 </template>
 
 <style lang="scss" scoped>
+.anecdotes {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+  background-color: #f5f5f5;
+  padding: 16px;
+  border-radius: 8px;
+}
+
 .guessed {
   text-align: center;
 

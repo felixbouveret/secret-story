@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { computed } from '@vue/reactivity';
+import { addHours, format, isBefore } from 'date-fns';
 import { onMounted, onUnmounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 
@@ -13,7 +14,7 @@ import AnswerPopin from './components/AnswerPopin.vue';
 import MembersCards from './components/MembersCards.vue';
 import { usePartyPage } from './composbles/usePartyPage';
 
-const { formatDateSeconds } = useDate();
+const { formatDateSeconds, getTime } = useDate();
 const { partyData, triggerPartyListen, triggerPartyMembersListen, resetPartyData } = usePartyPage();
 const { userData } = useUser();
 const route = useRoute();
@@ -33,9 +34,18 @@ const onPartyStart = async () => {
 
 const areMembersReady = computed(() => partyData.members.every((member) => member.isReady));
 const isOwner = computed(() => partyData.members.find(({ uid }) => uid === userData.uid)?.isHost);
-const hasUserGuessed = computed(() => {
-  const currentUser = partyData.members.find(({ uid }) => uid === userData.uid);
-  return currentUser?.guessed;
+const currentUser = computed(() => partyData.members.find(({ uid }) => uid === userData.uid));
+const hasUserGuessed = computed(() => currentUser.value?.guessed);
+const userLastGuessDate = computed(() => {
+  if (!currentUser.value?.lastGuessDate) return null;
+  const date = new Date(currentUser.value?.lastGuessDate.seconds * 1000);
+  return format(addHours(date, 1), 'k:m');
+});
+
+const canGuess = computed(() => {
+  if (!currentUser.value?.lastGuessDate) return true;
+  const date = addHours(new Date(currentUser.value?.lastGuessDate.seconds * 1000), 1);
+  return isBefore(new Date(), date);
 });
 
 onMounted(() => {
@@ -55,7 +65,7 @@ onUnmounted(() => {
       <div class="infos">
         <div class="dates">
           <p>
-            <span>Début :</span>
+            <span>Début : </span>
             <span>{{ formatDateSeconds(partyData.party.startingDate.seconds) }}</span>
           </p>
         </div>
@@ -77,14 +87,20 @@ onUnmounted(() => {
           >
             Lancer la partie
           </el-button>
-          <el-button
-            v-if="partyData.party.isStarted && !hasUserGuessed"
-            :loading="isLoading"
-            type="success"
-            @click="answerPopinDisplayed = true"
-          >
-            Proposer une réponse
-          </el-button>
+          <div v-if="partyData.party.isStarted && !hasUserGuessed">
+            <el-button
+              :loading="isLoading"
+              :disabled="canGuess"
+              type="success"
+              @click="answerPopinDisplayed = true"
+            >
+              Proposer une réponse
+            </el-button>
+            <p v-if="partyData.party.isStarted && userLastGuessDate" class="nextGuess">
+              <span>Prochain guess :</span>
+              <span>{{ userLastGuessDate }}</span>
+            </p>
+          </div>
         </div>
         <template v-if="!partyData.party.isStarted">
           <el-alert
@@ -166,6 +182,11 @@ onUnmounted(() => {
   align-items: center;
   gap: 20px;
 }
+.nextGuess {
+  font-size: 16px;
+  text-align: center;
+  margin-top: 8px;
+}
 
 .infos {
   display: flex;
@@ -187,6 +208,8 @@ onUnmounted(() => {
 
 .dates {
   display: flex;
+  flex-direction: column;
+  align-items: center;
   gap: 8px;
 }
 </style>

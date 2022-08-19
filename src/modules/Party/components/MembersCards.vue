@@ -17,7 +17,7 @@ const { partyData } = usePartyPage();
       >
         <UserFilled :width="32" />
       </el-avatar>
-      <p>{{ member.displayName }}</p>
+      <p class="name">{{ member.displayName }}</p>
       <template v-if="!partyData.party.isStarted">
         <el-tag v-if="!member.isReady" type="warning">En attente de réponses</el-tag>
         <el-tag v-else type="success">Prêt</el-tag>
@@ -48,5 +48,9 @@ const { partyData } = usePartyPage();
   border: solid 1px #ebebeb;
   border-radius: 4px;
   gap: 8px;
+}
+
+.name {
+  text-align: center;
 }
 </style>
