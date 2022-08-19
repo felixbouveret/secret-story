@@ -80,6 +80,7 @@ onUnmounted(() => {
           <el-button
             v-if="partyData.party.isStarted && !hasUserGuessed"
             :loading="isLoading"
+            disabled
             type="success"
             @click="answerPopinDisplayed = true"
           >
