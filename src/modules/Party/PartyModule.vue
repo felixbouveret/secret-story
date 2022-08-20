@@ -42,8 +42,9 @@ const userLastGuessDate = computed(() => {
   return format(addHours(date, 1), 'HH:mm');
 });
 
-const canGuess = computed(() => {
-  if (!currentUser.value?.lastGuessDate) return true;
+const cantGuess = computed(() => {
+  if (!currentUser.value?.lastGuessDate || currentUser.value?.lastGuessDate === undefined)
+    return false;
   const date = addHours(new Date(currentUser.value?.lastGuessDate.seconds * 1000), 1);
   return isBefore(new Date(), date);
 });
@@ -90,7 +91,7 @@ onUnmounted(() => {
           <div v-if="partyData.party.isStarted && !hasUserGuessed">
             <el-button
               :loading="isLoading"
-              :disabled="canGuess"
+              :disabled="cantGuess"
               type="success"
               @click="answerPopinDisplayed = true"
             >
