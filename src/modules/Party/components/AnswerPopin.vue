@@ -106,7 +106,12 @@ const onTooEarly = () => {
         wrap-around
         touch-drag
       >
-        <slide v-for="(member, index) in partyData.members" :key="index" class="itemContainer">
+        <slide
+          v-for="(member, index) in partyData.members"
+          :key="index"
+          class="itemContainer"
+          @click="anecdoteOwnerIndex = index"
+        >
           <div class="item" :class="{ isSelected: anecdoteOwnerIndex === index }">
             <el-avatar
               class="member"
