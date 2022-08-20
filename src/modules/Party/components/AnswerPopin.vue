@@ -104,6 +104,7 @@ const onTooEarly = () => {
         :items-to-show="2"
         snap-align="center"
         wrap-around
+        touch-drag
       >
         <slide v-for="(member, index) in partyData.members" :key="index" class="itemContainer">
           <div class="item" :class="{ isSelected: anecdoteOwnerIndex === index }">
