@@ -39,7 +39,7 @@ const hasUserGuessed = computed(() => currentUser.value?.guessed);
 const userLastGuessDate = computed(() => {
   if (!currentUser.value?.lastGuessDate) return null;
   const date = new Date(currentUser.value?.lastGuessDate.seconds * 1000);
-  return format(addHours(date, 1), 'k:m');
+  return format(addHours(date, 1), 'HH:mm');
 });
 
 const canGuess = computed(() => {
@@ -159,7 +159,7 @@ onUnmounted(() => {
 
 <style lang="scss" scoped>
 .partyRoot {
-  padding: 80px 20px;
+  padding: 80px 20px 100px;
 }
 
 .inner {

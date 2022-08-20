@@ -1,6 +1,10 @@
 <script lang="ts" setup>
+import 'vue3-carousel/dist/carousel.css';
+
+import { UserFilled } from '@element-plus/icons-vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { computed, ref } from 'vue';
+import { Carousel, Slide } from 'vue3-carousel';
 
 import { makeAGuess } from '@/api/parties';
 import PopinContainer from '@/components/PopinContainer';
@@ -36,10 +40,11 @@ const computedIsDisplayed = computed({
 });
 
 const isLoading = ref(false);
-const ancdoteOwner = ref({
-  uid: '',
-  displayName: ''
-});
+const anecdoteOwnerIndex = ref(0);
+const ancdoteOwner = computed(() => ({
+  uid: partyData.members[anecdoteOwnerIndex.value].uid,
+  displayName: partyData.members[anecdoteOwnerIndex.value].displayName
+}));
 const deceitAnecdote = ref('');
 
 const isDisabled = computed(() => !!(!ancdoteOwner.value.uid && !deceitAnecdote.value));
@@ -84,34 +89,49 @@ const onTooEarly = () => {
 </script>
 
 <template>
-  <PopinContainer v-if="computedIsDisplayed" @update:is-displayed="computedIsDisplayed = false">
+  <PopinContainer
+    v-if="computedIsDisplayed"
+    style="padding: 40px 0"
+    @update:is-displayed="computedIsDisplayed = false"
+  >
     <div class="anecdotesPopinContainer">
       <h2>Votre anecdotes</h2>
       <p>De quel joueur viennent ces anecdotes ?</p>
-      <span>{{ ancdoteOwner.displayName }}</span>
-      <div v-if="partyData.anecdotesToAnwser" class="members">
-        <el-avatar
-          v-for="(member, index) in partyData.members"
-          :key="index"
-          :class="{ member, isSelected: member.uid === ancdoteOwner.uid }"
-          :size="32"
-          :src="member.photoUrl"
-          @error="() => !member.photoUrl"
-          @click="ancdoteOwner = member"
-        >
-          <UserFilled :width="16" />
-        </el-avatar>
-      </div>
-      <p>Quelle anecdotes est la fausse ?</p>
-      <div class="anecdotes">
-        <div
-          v-for="(item, index) in partyData.anecdotesToAnwser"
-          :key="index"
-          class="anecdote"
-          :class="{ isSelected: deceitAnecdote === item }"
-          @click="deceitAnecdote = item"
-        >
-          {{ item }}
+      <carousel
+        v-if="partyData.anecdotesToAnwser"
+        v-model="anecdoteOwnerIndex"
+        class="members"
+        :items-to-show="2"
+        snap-align="center"
+        wrap-around
+      >
+        <slide v-for="(member, index) in partyData.members" :key="index" class="itemContainer">
+          <div class="item" :class="{ isSelected: anecdoteOwnerIndex === index }">
+            <el-avatar
+              class="member"
+              :size="64"
+              :src="member.photoUrl"
+              @error="() => !member.photoUrl"
+              @click="ancdoteOwner = member"
+            >
+              <UserFilled :width="32" />
+            </el-avatar>
+            <p>{{ member.displayName }}</p>
+          </div>
+        </slide>
+      </carousel>
+      <div class="anecdotesContainer">
+        <p>Quelle anecdotes est la fausse ?</p>
+        <div class="anecdotes">
+          <div
+            v-for="(item, index) in partyData.anecdotesToAnwser"
+            :key="index"
+            class="anecdote"
+            :class="{ isSelected: deceitAnecdote === item }"
+            @click="deceitAnecdote = item"
+          >
+            {{ item }}
+          </div>
         </div>
       </div>
       <el-button
@@ -139,29 +159,43 @@ const onTooEarly = () => {
   }
 }
 
-.inner {
+.members {
+  width: 100%;
+  gap: 24px;
+  margin: 0 -20px;
+}
+
+.itemContainer {
+  padding: 12px;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  padding: 20px;
+  border-radius: 4px;
+  gap: 8px;
+  width: 100%;
+  height: 100%;
+}
+
+.item,
+.anecdote {
+  border: solid 2px #ebebeb;
+  box-shadow: 0 0 0 0 rgba(#00bcd4, 0.2);
+  transition-property: border-color box-shadow;
+  transition-duration: 0.3s;
+  transition-timing-function: ease;
+}
+
+.anecdotesContainer {
+  padding: 0 20px;
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 24px;
-  width: 100%;
-}
-
-.members {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 8px;
-}
-
-.member img {
-  cursor: pointer;
-  border: 2px solid transparent;
-}
-
-.isSelected {
-  border: 2px solid #f5222d;
-  display: block;
 }
 
 .anecdotes {
@@ -179,10 +213,10 @@ const onTooEarly = () => {
   padding: 16px 8px;
   text-align: center;
   border-radius: 4px;
-  border: 1px solid #d9d9d9;
-  &.isSelected {
-    border: 2px solid #f5222d;
-    display: block;
-  }
+}
+
+.isSelected {
+  border: solid 2px #00bcd4;
+  box-shadow: 0 0 0 4px rgba(#00bcd4, 0.2);
 }
 </style>

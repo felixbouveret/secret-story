@@ -17,7 +17,7 @@ onUnmounted(() => {
 <template>
   <div class="popinRoot">
     <div class="backdrop" @click="emits('update:isDisplayed', false)"></div>
-    <div class="popinContainer">
+    <div class="popinContainer" v-bind="$attrs">
       <slot></slot>
     </div>
   </div>
@@ -34,7 +34,7 @@ onUnmounted(() => {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 20px;
+  padding: 20px !important;
 }
 .backdrop {
   position: absolute;

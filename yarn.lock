@@ -2464,6 +2464,11 @@ vue-tsc@^0.38.4:
   dependencies:
     "@volar/vue-typescript" "0.38.9"
 
+vue3-carousel@^0.1.46:
+  version "0.1.46"
+  resolved "https://registry.yarnpkg.com/vue3-carousel/-/vue3-carousel-0.1.46.tgz#173ede857f7e6321f2acd7cb4de384436c690b33"
+  integrity sha512-bBZRpt5vuaS3SYkyt3pF5N+VWTKrDlYeNnLKKwePcrGu77AKqZjofFR113tZi4aFF7rblvk8WqFdBWTNX+yZcg==
+
 vue@^3.2.37:
   version "3.2.37"
   resolved "https://registry.yarnpkg.com/vue/-/vue-3.2.37.tgz#da220ccb618d78579d25b06c7c21498ca4e5452e"
